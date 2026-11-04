@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Corporate Bingo — rules</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.42;
+    color: #333d4f;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  h1, h2, h3 { color: #121212; margin: 0; letter-spacing: -0.02em; }
+  h1 { font-size: 26pt; line-height: 1.05; }
+  h2 {
+    font-size: 12.5pt; margin: 13pt 0 6pt;
+    padding-bottom: 4pt; border-bottom: 2.5pt solid #ffc93c;
+    break-after: avoid;
+  }
+  h3 { font-size: 11pt; margin: 11pt 0 3pt; }
+  p { margin: 0 0 6pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+  li { margin-bottom: 2pt; }
+  strong { color: #121212; }
+  .lead { font-size: 11.5pt; color: #4a5468; }
+
+  /* cover */
+  .cover {
+    display: flex; align-items: center; gap: 16pt;
+    background: #2258e7; color: #fff;
+    border: 2.5pt solid #121212; border-radius: 10pt;
+    padding: 14pt 16pt; margin-bottom: 12pt;
+  }
+  .cover h1 { color: #fff; }
+  .cover .sub { font-size: 10pt; opacity: .88; margin-top: 4pt; }
+  .cover svg { flex: none; }
+
+  table { width: 100%; border-collapse: collapse; margin: 5pt 0 8pt; font-size: 9.5pt; }
+  th, td { border: 1pt solid #c9d0de; padding: 4pt 7pt; text-align: left; vertical-align: top; }
+  th { background: #eef2fb; color: #121212; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .04em; }
+  td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: bold; color: #121212; }
+  tr { break-inside: avoid; }
+
+  .note {
+    border: 2pt solid #121212; border-radius: 8pt;
+    background: #fff8e3; padding: 8pt 10pt; margin: 8pt 0;
+    break-inside: avoid;
+  }
+  .note b { color: #121212; }
+
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 8pt 0 10pt; }
+  .steps li {
+    counter-increment: s; position: relative; padding-left: 26pt; margin-bottom: 6pt;
+    break-inside: avoid;
+  }
+  .steps li::before {
+    content: counter(s);
+    position: absolute; left: 0; top: 0;
+    width: 18pt; height: 18pt; border-radius: 50%;
+    background: #2258e7; color: #fff;
+    font-weight: bold; font-size: 10pt;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .pagebreak { break-before: page; }
+  footer {
+    margin-top: 14pt; padding-top: 7pt; border-top: 1pt solid #c9d0de;
+    font-size: 8.5pt; color: #8b93a6;
+  }
+  .two { display: flex; gap: 12pt; }
+  .two > div { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <svg width="74" height="74" viewBox="0 0 120 120" fill="none">
+    <circle cx="60" cy="60" r="56" fill="#fff6e0" stroke="#15161a" stroke-width="4"/>
+    <path d="M30 46 32 24l19 13z" fill="#ff9a3c" stroke="#15161a" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M90 46 88 24 69 37z" fill="#ff9a3c" stroke="#15161a" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="60" cy="64" rx="34" ry="31" fill="#ffb155" stroke="#15161a" stroke-width="4"/>
+    <ellipse cx="48" cy="60" rx="9" ry="10" fill="#fff" stroke="#15161a" stroke-width="3.5"/>
+    <ellipse cx="72" cy="60" rx="9" ry="10" fill="#fff" stroke="#15161a" stroke-width="3.5"/>
+    <ellipse cx="50" cy="62" rx="4" ry="5.5" fill="#15161a"/>
+    <ellipse cx="74" cy="62" rx="4" ry="5.5" fill="#15161a"/>
+    <path d="M56 74h8l-4 4z" fill="#ff6f5e" stroke="#15161a" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M60 79c0 4 4 6 8 4M60 79c0 4-4 6-8 4" stroke="#15161a" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M26 70h12M26 78h12M94 70H82M94 78H82" stroke="#15161a" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <div>
+    <h1>Corporate Bingo</h1>
+    <div class="sub">Rules and scoring · EffectiveSoft</div>
+  </div>
+</div>
+
+<p class="lead">
+  Every team gets its own board of light-hearted tasks, and the goal is to complete a line.
+  Teams of three are drawn at random so that departments get mixed up, which is the whole point.
+</p>
+
+<h2>What it looks like as a player</h2>
+<ol class="steps">
+  <li><strong>Sign up.</strong> You get an email with an “I am in” button. Taking part is up to you: only the people who said yes end up on a team.</li>
+  <li><strong>Get your team.</strong> Once sign-ups close, the system builds the trios and deals each one its board. Another email brings you the link.</li>
+  <li><strong>Reveal tasks.</strong> Cells arrive face down and only show their difficulty. Each member may reveal one task a day.</li>
+  <li><strong>Do it and post it.</strong> Upload a photo, a screenshot or a line of text. The cell closes immediately and the proof goes to the shared feed.</li>
+</ol>
+
+<h2>Teams</h2>
+<ul>
+  <li><strong>Three people</strong> each, picked at random.</li>
+  <li>The system tries to build each trio from <strong>different departments</strong>, which is what the whole thing is for.</li>
+  <li>When the headcount does not divide by three, whoever is left joins the smallest teams. A couple of fours beats an undersized trio that is beaten before it starts.</li>
+  <li><strong>Any member</strong> can close a cell. No pet of your own? A teammate will show theirs.</li>
+  <li>HR can move someone between teams at any point: people join late, people want to swap.</li>
+</ul>
+
+<h2>The board</h2>
+<ul>
+  <li><strong>5 × 5 = 25 cells.</strong></li>
+  <li><strong>A line is 5 cells in a row:</strong> a row, a column or a diagonal. There are <strong>12</strong> of them: five rows, five columns and two diagonals.</li>
+  <li><strong>The center cell is the same for every team</strong> — the shared task of the round.</li>
+  <li>A board is not just a random pile: the generator makes sure <strong>every one of the 12 lines holds at least one hard task</strong> and totals at least nine difficulty points. There is no cheap line of five easy cells to be found.</li>
+</ul>
+
+<div class="note">
+  <b>A question that comes up: why not make the board bigger so the game lasts longer?</b><br>
+  Because a line always equals the side of the board. On a 7 × 7 board the line gets longer, but so
+  does the number of ways to complete one. What stretches the game out is the difficulty layout and
+  the limit on revealing cells, not the size of the board.
+</div>
+
+<h2>Face-down cells</h2>
+<p>
+  The board is not handed over all at once. At first each cell shows only its difficulty: one to
+  three stars on a striped card back, which turns over when somebody reveals it. The card then
+  carries the initials of whoever turned it over, so the board remembers who did what.
+</p>
+<ul>
+  <li><strong>Any team member</strong> can reveal a cell, but no more than <strong>one task per person per day</strong>.</li>
+  <li>A trio uncovers roughly <strong>three new tasks a day</strong>, and that is what paces the round.</li>
+  <li>A revealed task is <strong>visible to the whole team</strong>, and anyone can do it, not only whoever turned it over.</li>
+  <li>While a task is face down it cannot be done. Reveal it first.</li>
+  <li>At least three cells on every board are <strong>retro</strong>: they count something that
+      already happened, so there is nothing to arrange. The oldest photo you have from working
+      here, a team photo with terrible lighting, the tab you have had open since spring.</li>
+  <li>You can spot them before turning them over — a face-down retro cell carries a small
+      <strong>start here</strong> badge. That is deliberate: it is where to begin on the first
+      morning, when nobody has anything on the board yet.</li>
+</ul>
+
+<h2>How we play</h2>
+<p>
+  Nothing here is checked. A cell closes the moment a proof is posted, nobody approves it, and the
+  score moves straight away. That is a deliberate choice, and it only works because of two things
+  we are taking for granted about each other.
+</p>
+<ul>
+  <li>
+    <strong>Respect.</strong> We trust that the points a teammate earned came from something that
+    actually happened &mdash; not from a picture a model generated in ten seconds. The game is worth
+    playing exactly as far as that holds.
+  </li>
+  <li>
+    <strong>Commitment.</strong> You signed up, so three other people are counting on you. Closing
+    one cell takes about as long as reading this page.
+  </li>
+</ul>
+<p>
+  And the point of the whole thing: you are on a team with people you do not normally work with,
+  from other projects and other offices. If by the end you know three colleagues you did not know
+  at the start, the game did its job, whatever the leaderboard says.
+</p>
+
+<h2>Scoring</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:44%">What for</th><th class="num" style="width:13%">Points</th><th>Details</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A closed cell — easy</td>
+      <td class="num">1</td>
+      <td rowspan="3">A cell is worth exactly its difficulty. That difficulty is visible while the cell is still face down, before the task is revealed.</td>
+    </tr>
+    <tr><td>A closed cell — medium</td><td class="num">2</td></tr>
+    <tr><td>A closed cell — hard</td><td class="num">3</td></tr>
+    <tr>
+      <td>A completed line</td>
+      <td class="num">+5</td>
+      <td>For every line. The game does not stop at the first one: keep collecting them until the round ends.</td>
+    </tr>
+    <tr>
+      <td>First line of the round</td>
+      <td class="num">+10</td>
+      <td>Goes to <strong>one team for the whole round</strong>: whoever completed a line first.</td>
+    </tr>
+    <tr>
+      <td>A fully closed board</td>
+      <td class="num">+25</td>
+      <td>All 25 cells, on top of the points for the cells and the lines.</td>
+    </tr>
+    <tr>
+      <td>A proof reaches 10 reactions</td>
+      <td class="num">+2</td>
+      <td>Only reactions <strong>from outside your own team</strong> count, or a trio would simply like its own way to the bonus. Paid once per proof and it does not grow after that.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <b>Worked example.</b> A team closes five cells in one row: easy, medium, medium, hard, easy.
+  That is 1 + 2 + 2 + 3 + 1 = <b>9 points</b> for the cells and <b>+5</b> for the line, so <b>14</b>
+  in total. If it was the first line of the round, another <b>+10</b> brings it to <b>24</b>. And if
+  one of those proofs goes round the company and collects ten reactions, that is <b>+2</b> more.
+</div>
+
+<h3>Personal standings</h3>
+<p>
+  A personal leaderboard runs alongside the team one. The points for a cell go to whoever closed
+  it, plus the bonuses on their own proofs. That is deliberate: even if the trio goes quiet, an
+  active player still scores and still sees themselves on the board.
+</p>
+<p>
+  Personal points are counted against your current team. When HR moves someone to a different trio,
+  the cells they closed in the old one stop counting towards them. The team's own score is unaffected:
+  it rests on the cells closed on the board, not on the roster.
+</p>
+
+<h2>When a line closes</h2>
+<p>
+  Everything stops for a moment. The person who closed it gets a full-screen
+  <strong>BINGO!</strong>, and the proof that did it carries a banner in the shared feed, so the
+  whole company sees which team just finished a line and on what photo. Closing the entire board
+  says <strong>FULL BOARD</strong> instead.
+</p>
+
+<h2>Photos off the board</h2>
+<p>
+  You can post a photo that has nothing to do with any task, twice a day. The dog, the view, the
+  third coffee. It scores nothing, and it goes up under a task name picked at random &mdash; which
+  means that from the outside nobody can tell a real proof from a decoy, and nobody can work out
+  what is on your board by reading the feed. It also means the feed is already alive on the
+  morning the round opens.
+</p>
+
+<h2>How a task is counted</h2>
+<ul>
+  <li>Every task states what proves it: a <strong>photo</strong>, a <strong>screenshot</strong> or a line of <strong>text</strong>.</li>
+  <li>The cell closes <strong>immediately</strong>, with no wait for approval, and the proof goes straight to the shared feed.</li>
+  <li>HR can <strong>remove a proof</strong> afterwards, which reopens the cell and recomputes the score.</li>
+</ul>
+<p>
+  Pre-moderation is deliberately avoided: across a hundred and fifty players the approval queue
+  would seize up on day one and kill the game. It is simpler to trust people and let HR undo.
+</p>
+
+<h2>What is off limits</h2>
+<ul>
+  <li><strong>Internal meetings only.</strong> Calls with clients are not part of the game.</li>
+  <li><strong>No code, no screens, no client data</strong> in a proof.</li>
+  <li><strong>Other people only with their agreement.</strong> If someone does not want to be in the shot, they are not in the shot.</li>
+  <li>A task should never get in the way of someone else's work. If in doubt, skip it.</li>
+</ul>
+<p>
+  On the technical side: uploaded photos are compressed automatically and stripped of their
+  metadata, which takes the capture coordinates with it. Proofs are visible to signed-in people only.
+</p>
+
+<h2>The numbers behind the round</h2>
+<p>
+  Most of these HR sets in the app: the round name, the team size, how many cells each person
+  turns over per day, photos off the board with their daily cap, and what every achievement is
+  worth. The rest are fixed for the round — they are the balance the game was tuned
+  around, and moving one mid-round changes what everybody's points are worth. Changing them is a
+  deliberate job for whoever runs the deployment, not a checkbox.
+</p>
+<table>
+  <thead>
+    <tr><th style="width:40%">Setting</th><th class="num" style="width:16%">Now</th><th>What it changes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Board size</td><td class="num">5 × 5</td><td>How many cells there are. Does not change the length of a line.</td></tr>
+    <tr><td>Team size</td><td class="num">3</td><td>How many people are on a team.</td></tr>
+    <tr><td>Reveals per person per day</td><td class="num">1</td><td>The main pacing control.</td></tr>
+    <tr><td>Closes per team per day</td><td class="num">no limit</td><td>A spare brake, switched off: revealing already paces the game.</td></tr>
+    <tr><td>Points for a line</td><td class="num">+5</td><td>What a completed line adds.</td></tr>
+    <tr><td>Points for the first line</td><td class="num">+10</td><td>To the first team in the round to finish one.</td></tr>
+    <tr><td>Points for the whole board</td><td class="num">+25</td><td>For closing all twenty-five cells.</td></tr>
+    <tr><td>Reaction bonus threshold</td><td class="num">10</td><td>How many reactions a proof needs.</td></tr>
+    <tr><td>Points per bonus</td><td class="num">+2</td><td>What a proof pays once it reaches the threshold.</td></tr>
+    <tr><td>Client-facing tasks</td><td class="num">off</td><td>Whether tasks on client calls are allowed. No task is marked that way yet.</td></tr>
+    <tr><td>Photos off the board</td><td class="num">on</td><td>Whether anyone may post a photo with no task behind it.</td></tr>
+    <tr><td>Photos off the board per day</td><td class="num">2</td><td>How many of those one person may post in a day.</td></tr>
+  </tbody>
+</table>
+<p>
+  What HR does day to day is the rest of it: maintaining the task pool (add, edit, switch one
+  off), editing team rosters, removing individual proofs, and closing off an employee's access
+  when it comes to that.
+</p>
+<p>
+  Nobody approves a proof before it counts. You post it, the cell closes and the points land
+  the same second — waiting on a moderator would take the life out of the thing. If something
+  does not belong, HR takes it down afterwards: the photo is deleted, the cell opens again and
+  the points come off.
+</p>
+
+<footer>
+  This document was assembled from the live settings of the game. If HR changes the round
+  parameters, the numbers in the table above will no longer match. The scoring rules themselves
+  do not change.
+</footer>
+
+</body>
+</html>

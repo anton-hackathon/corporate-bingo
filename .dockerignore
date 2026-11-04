@@ -1,0 +1,21 @@
+# The build context is the repository root (docker build -f web/Dockerfile .).
+# Without this file `COPY web/ ./` lands on top of the node_modules the deps
+# stage just built, replacing linux binaries for sharp and the Prisma engines
+# with whatever the machine doing the build happens to have — and it ships
+# hundreds of megabytes to the daemon to do it.
+**/node_modules
+**/.next
+**/.next-check
+**/.uploads
+
+# Local secrets and state never belong in an image.
+**/.env
+**/.env.local
+web/prisma/dev.db
+
+.git
+.DS_Store
+**/*.log
+docs
+Bingo-rules.pdf
+index.html

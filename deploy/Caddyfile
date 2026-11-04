@@ -1,0 +1,30 @@
+# Caddy obtains and renews a Let's Encrypt certificate by itself.
+# It needs ports 80 and 443 reachable from the internet and DOMAIN
+# pointing at this host.
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Access logging is off. Turning it back on is the way to tell a person
+	# clicking a sign-in link from a robot that fetched it first — that is how
+	# the sign-in problem was found. Uncomment when something needs watching.
+	# log {
+	# 	output stdout
+	# 	format json
+	# }
+
+	# Must stay above serverActions.bodySizeLimit in web/next.config.ts.
+	request_body {
+		max_size 15MB
+	}
+
+	reverse_proxy app:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}

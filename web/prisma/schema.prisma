@@ -1,0 +1,273 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PLAYER
+  HR
+}
+
+enum RoundStatus {
+  DRAFT // HR is preparing the pool and the settings
+  SIGNUP // sign-ups are open
+  ACTIVE // the game is running
+  FINISHED // results are in
+}
+
+enum ProofKind {
+  PHOTO
+  SCREEN
+  TEXT
+}
+
+// ---------- people and access ----------
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String
+  department String?
+  office     String? // "office" | "remote"
+  role       Role     @default(PLAYER)
+  active     Boolean  @default(true) // still with the company
+  createdAt  DateTime @default(now())
+
+  sessions      Session[]
+  loginTokens   LoginToken[]
+  memberships   TeamMember[]
+  signups       RoundSignup[]
+  proofs        Proof[]       @relation("ProofAuthor")
+  revoked       Proof[]       @relation("ProofRevoker")
+  closedCells   BoardCell[]   @relation("CellCloser")
+  revealedCells BoardCell[]   @relation("CellRevealer")
+
+  // Who this person follows in the feed: teams and people.
+  watchTeamIds String[]   @default([])
+  watchUserIds String[]   @default([])
+  reactions    Reaction[]
+}
+
+model LoginToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ---------- content ----------
+
+model Task {
+  id           Int       @id @default(autoincrement())
+  short        String // the text shown in a cell, capped at 28 characters
+  full         String // the full description shown on the card
+  difficulty   Int // 1 easy, 2 medium, 3 hard
+  proof        ProofKind
+  tags         String[] // only "office" is still honoured
+  category     String
+  active       Boolean   @default(true)
+  clientFacing Boolean   @default(false)
+  // Satisfied by something already done rather than something done this week.
+  // Every board carries a few: on day one you can score by remembering, which
+  // is the cheapest way to get someone to open the board at all.
+  retro        Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  cells         BoardCell[]
+  centerOfRound Round[]     @relation("RoundCenterTask")
+
+  @@index([active])
+}
+
+// ---------- round ----------
+
+model Round {
+  id               String      @id @default(cuid())
+  title            String
+  status           RoundStatus @default(DRAFT)
+  // How many cells one person may reveal per day. This is the main pacing
+  // control: a team of three reveals three new tasks a day.
+  revealsPerDay    Int         @default(1)
+  // Cells a team may close per day. 0 disables it: revealing already paces the game.
+  dailyLimit       Int         @default(0)
+  allowClientTasks Boolean     @default(false)
+  // Photos that belong to no task. On by default: they are what keeps the feed
+  // alive before the first cell is closed, and what stops anyone reading a
+  // team's board off its posts.
+  allowFreePosts   Boolean     @default(true)
+  // How many of those one person may post in a day.
+  freePostsPerDay  Int         @default(2)
+  teamSize         Int         @default(3)
+
+  // What each achievement is worth. Defaults match the balance the simulation
+  // was run against; HR can move them, which changes what every team's score
+  // means, so the round panel says as much.
+  pointsLine       Int         @default(5)
+  pointsFirstLine  Int         @default(10)
+  pointsBlackout   Int         @default(25)
+
+  // Reaction bonus: a proof that collects reactionBonusAt reactions from people
+  // outside its own team pays reactionBonusPoints once
+  reactionBonusAt     Int       @default(10)
+  reactionBonusPoints Int       @default(2)
+  startsAt            DateTime?
+  endsAt              DateTime?
+  centerTaskId        Int?
+  centerTask          Task?     @relation("RoundCenterTask", fields: [centerTaskId], references: [id])
+  firstLineTeamId     String? // who took the first-line bonus of the round
+  createdAt           DateTime  @default(now())
+
+  teams   Team[]
+  signups RoundSignup[]
+  proofs  Proof[]
+
+  @@index([status])
+}
+
+model RoundSignup {
+  roundId   String
+  round     Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([roundId, userId])
+}
+
+model Team {
+  id      String @id @default(cuid())
+  roundId String
+  round   Round  @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  name    String
+
+  // denormalized so the leaderboard stays a single query
+  points      Int       @default(0)
+  cellsDone   Int       @default(0)
+  linesDone   Int       @default(0)
+  firstLineAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  members TeamMember[]
+  cells   BoardCell[]
+  proofs  Proof[]
+
+  @@unique([roundId, name])
+  @@index([roundId, points])
+}
+
+model TeamMember {
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@index([userId])
+}
+
+model BoardCell {
+  id     String @id @default(cuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  pos    Int // 0..24 on the 5×5 board, left to right, top to bottom
+  taskId Int
+  task   Task   @relation(fields: [taskId], references: [id])
+
+  // A cell starts face down: only its difficulty is visible.
+  // Any member may reveal one, but no more than one per person per day.
+  revealedAt   DateTime?
+  revealedById String?
+  revealedBy   User?     @relation("CellRevealer", fields: [revealedById], references: [id])
+
+  closedAt   DateTime?
+  closedById String?
+  closedBy   User?     @relation("CellCloser", fields: [closedById], references: [id])
+
+  proofs Proof[]
+
+  @@unique([teamId, pos])
+  @@index([teamId, closedAt])
+}
+
+model Proof {
+  id String @id @default(cuid())
+
+  // A free post belongs to the round but to no cell and no team: it can be
+  // written before teams exist, which is how the feed is warm on day one.
+  // That is why the round sits on the proof rather than being read off the team.
+  roundId String
+  round   Round  @relation(fields: [roundId], references: [id], onDelete: Cascade)
+
+  cellId String?
+  cell   BoardCell? @relation(fields: [cellId], references: [id], onDelete: Cascade)
+  teamId String?
+  team   Team?      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId String
+  user   User       @relation("ProofAuthor", fields: [userId], references: [id])
+
+  kind     ProofKind
+  text     String? // for text proofs
+  imageKey String? // key in the storage bucket
+  caption  String?
+  // Stands in for the task name on a free post, drawn at random from the pool
+  // so the feed gives nothing away about what is actually on anyone's board.
+  label    String?
+
+  createdAt      DateTime  @default(now())
+  // What this particular proof finished off, recorded at the moment it landed:
+  // the feed shows a BINGO banner on it, and that stays true as a piece of
+  // history even if a later revoke breaks the line again.
+  bingoLines     Int       @default(0)
+  bingoBlackout  Boolean   @default(false)
+  bonusAwardedAt DateTime? // the reaction bonus is awarded once and survives further likes
+  revokedAt      DateTime?
+  revokedById    String?
+  revokedBy      User?     @relation("ProofRevoker", fields: [revokedById], references: [id])
+  revokeReason   String?
+
+  reactions Reaction[]
+
+  @@index([createdAt])
+  @@index([roundId, createdAt])
+  @@index([teamId])
+  @@index([cellId])
+  // personalLeaderboard looked up a member's proofs with a sequential scan per
+  // person; this turns that into an index lookup.
+  @@index([userId, teamId])
+}
+
+model Reaction {
+  proofId String
+  proof   Proof  @relation(fields: [proofId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji   String
+
+  @@id([proofId, userId, emoji])
+  // One reaction per person per proof, enforced by the database rather than by
+  // a delete-then-insert that two quick taps can both slip past.
+  @@unique([proofId, userId])
+}

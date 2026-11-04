@@ -1,0 +1,575 @@
+<title>EffectiveSoft Bingo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: app shell — navy status card over a light board grid; pill nav on desktop, fixed tab bar on phones. */
+:root{
+  --bg:#ffffff; --surface:#f5f7fc; --surface-2:#eef2fb; --line:#e4e4e7;
+  --ink:#121212; --body:#3d4c65; --muted:#8e97ab;
+  --brand:#2258e7; --brand-ink:#183c9e; --brand-soft:#e9eefd;
+  --hero-bg:#001334; --hero-fg:#ffffff; --hero-dim:#8fa3c9; --hero-line:#143059;
+  --cell-bg:#ffffff; --cell-fg:#3d4c65; --cell-line:#e4e4e7;
+  --done-bg:#2258e7; --done-fg:#ffffff;
+  --win-bg:#001334; --win-fg:#ffffff;
+  --danger:#f04438;
+  --shadow:0 1px 2px rgba(0,19,52,.05), 0 10px 28px rgba(0,19,52,.07);
+  --font:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070d1c; --surface:#0d1730; --surface-2:#13203f; --line:#22304f;
+    --ink:#f3f6fc; --body:#aab6cb; --muted:#6d7a94;
+    --brand:#5f85ed; --brand-ink:#86a4f3; --brand-soft:#16254a;
+    --hero-bg:#13203f; --hero-fg:#f3f6fc; --hero-dim:#8e9db9; --hero-line:#27375c;
+    --cell-bg:#0d1730; --cell-fg:#aab6cb; --cell-line:#22304f;
+    --done-bg:#26438f; --done-fg:#dde7ff;
+    --win-bg:#5f85ed; --win-fg:#06112b;
+    --danger:#f97066;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#070d1c; --surface:#0d1730; --surface-2:#13203f; --line:#22304f;
+  --ink:#f3f6fc; --body:#aab6cb; --muted:#6d7a94;
+  --brand:#5f85ed; --brand-ink:#86a4f3; --brand-soft:#16254a;
+  --hero-bg:#13203f; --hero-fg:#f3f6fc; --hero-dim:#8e9db9; --hero-line:#27375c;
+  --cell-bg:#0d1730; --cell-fg:#aab6cb; --cell-line:#22304f;
+  --done-bg:#26438f; --done-fg:#dde7ff;
+  --win-bg:#5f85ed; --win-fg:#06112b;
+  --danger:#f97066;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--body);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+h1,h2,h3{color:var(--ink);margin:0;text-wrap:balance;letter-spacing:-.015em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---- top bar ---- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;padding-block:12px;min-height:60px}
+.brandmark{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--ink);font-size:15px;letter-spacing:-.02em;white-space:nowrap}
+.dot{width:22px;height:22px;border-radius:7px;background:var(--brand);display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;flex:none}
+.badge-demo{font-size:11px;font-weight:600;color:var(--brand-ink);background:var(--brand-soft);border-radius:999px;padding:4px 9px;white-space:nowrap}
+.nav-desktop{margin-left:auto;display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:12px}
+.nav-desktop button{border:0;background:transparent;color:var(--body);font-weight:600;font-size:13.5px;padding:7px 14px;border-radius:9px}
+.nav-desktop button[aria-current="true"]{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(0,19,52,.1)}
+@media (max-width:719px){.nav-desktop{display:none}.badge-demo{display:none}}
+
+/* ---- bottom tab bar ---- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--bg);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.tabbar button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 10px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabbar button[aria-current="true"]{color:var(--brand)}
+.tabbar svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width:720px){.tabbar{display:none}}
+
+main{padding-block:20px 104px}
+@media (min-width:720px){main{padding-block:26px 56px}}
+
+/* ---- hero ---- */
+.hero{background:var(--hero-bg);color:var(--hero-fg);border-radius:18px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hero h1{color:var(--hero-fg);font-size:21px;font-weight:800}
+.hero .sub{color:var(--hero-dim);font-size:13px;margin-top:3px}
+.hero .rank{text-align:right;flex:none}
+.hero .rank b{display:block;font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.hero .rank span{color:var(--hero-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hero-line);border-radius:12px;overflow:hidden;margin-top:16px}
+.hero-stats div{background:var(--hero-bg);padding:11px 12px}
+.hero-stats b{display:block;font-size:19px;font-weight:800;color:var(--hero-fg);font-variant-numeric:tabular-nums}
+.hero-stats span{font-size:11.5px;color:var(--hero-dim)}
+.hero-bar{margin-top:14px}
+.hero-bar .track{height:6px;border-radius:99px;background:var(--hero-line);overflow:hidden}
+.hero-bar .fill{height:100%;background:var(--brand);border-radius:99px}
+.hero-bar .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--hero-dim);margin-bottom:6px}
+
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 10px;flex-wrap:wrap}
+.section-head h2{font-size:16px;font-weight:700}
+.section-head .hint{font-size:12.5px;color:var(--muted)}
+
+/* ---- board ---- */
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+@media (min-width:560px){.board{gap:9px}}
+.cell{aspect-ratio:1;border:1px solid var(--cell-line);background:var(--cell-bg);color:var(--cell-fg);border-radius:11px;
+  padding:6px 4px;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:clamp(8.5px,2.35vw,12px);line-height:1.18;font-weight:600;hyphens:auto;overflow-wrap:anywhere;min-width:0;overflow:hidden;
+  position:relative;transition:transform .12s ease, box-shadow .12s ease}
+@media (min-width:560px){.cell{padding:10px 8px;border-radius:13px}}
+.cell:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.cell.done{background:var(--done-bg);border-color:var(--done-bg);color:var(--done-fg)}
+.cell.win{background:var(--win-bg);border-color:var(--win-bg);color:var(--win-fg)}
+.cell .tick{position:absolute;top:4px;right:4px;width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:3;opacity:.85}
+.cell .pin{position:absolute;top:4px;left:5px;font-size:8.5px;font-weight:800;letter-spacing:.04em;opacity:.5}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px;color:var(--muted)}
+.legend i{width:11px;height:11px;border-radius:4px;display:inline-block;vertical-align:-1px;margin-right:6px}
+
+/* ---- cards ---- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+.grid2{display:grid;gap:12px}
+@media (min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+
+/* ---- feed ---- */
+.feed{display:grid;gap:12px}
+@media (min-width:720px){.feed{grid-template-columns:1fr 1fr}}
+.post{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.post-head{display:flex;gap:10px;align-items:center;padding:12px 14px 10px}
+.ava{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--brand)}
+.post-head .who{font-weight:650;color:var(--ink);font-size:13.5px;line-height:1.25}
+.post-head .meta{font-size:11.5px;color:var(--muted)}
+.proof{aspect-ratio:16/10;display:grid;place-items:center;gap:7px;color:#cfe0ff;background:linear-gradient(135deg,#1b3a7a,#0a1b3d 70%)}
+.proof.v2{background:linear-gradient(135deg,#2258e7,#15306e)}
+.proof.v3{background:linear-gradient(135deg,#0d2149,#2b4ea0)}
+.proof svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;opacity:.8}
+.proof span{font-size:11.5px;letter-spacing:.04em;opacity:.75}
+.proof-text{padding:16px 15px;background:var(--surface-2);color:var(--ink);font-size:14px;font-style:italic;line-height:1.45}
+.post-body{padding:11px 14px 13px;display:flex;flex-direction:column;gap:9px;flex:1}
+.task-chip{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;background:var(--brand-soft);color:var(--brand-ink);
+  font-size:12px;font-weight:650;padding:4px 10px;border-radius:999px}
+.reacts{display:flex;gap:6px;margin-top:auto}
+.react{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;color:var(--body);font-variant-numeric:tabular-nums}
+.react.on{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+
+/* ---- tables ---- */
+.tabs{display:inline-flex;gap:3px;background:var(--surface);padding:3px;border-radius:10px;margin-bottom:12px}
+.tabs button{border:0;background:transparent;font-size:13px;font-weight:650;padding:6px 13px;border-radius:8px;color:var(--body)}
+.tabs button[aria-current="true"]{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(0,19,52,.1)}
+.rows{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;padding:11px 14px;background:var(--bg);border-top:1px solid var(--line);font-size:14px}
+.row:first-child{border-top:0}
+.row.me{background:var(--brand-soft)}
+.row .pos{font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.row.top1 .pos{color:var(--brand)}
+.row .nm{font-weight:650;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .nm small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.row .pts{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .pts small{font-weight:500;color:var(--muted);font-size:11.5px;display:block;text-align:right}
+
+/* ---- HR ---- */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (min-width:620px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px 14px}
+.tile b{display:block;font-size:23px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.tile span{font-size:12px;color:var(--muted)}
+.field{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:0}
+.field label{font-size:13.5px;color:var(--ink);font-weight:600}
+.field p{margin:2px 0 0;font-size:12px;color:var(--muted);max-width:46ch}
+select,input[type=search]{font:inherit;font-size:13.5px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:7px 10px}
+input[type=search]{width:100%}
+.switch{width:42px;height:24px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch[aria-pressed="true"]{background:var(--brand)}
+.switch[aria-pressed="true"]::after{transform:translateX(18px)}
+.tasktable{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tasktable .thead,.tasktable .trow{display:grid;grid-template-columns:1fr 62px 86px 44px;gap:10px;align-items:center;padding:9px 13px;font-size:13px}
+.tasktable .thead{background:var(--surface);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.tasktable .trow{border-top:1px solid var(--line);background:var(--bg)}
+.tasktable .trow .t{min-width:0;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tasktable .trow .t small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis}
+.scrolly{max-height:430px;overflow-y:auto}
+.diff{display:inline-flex;gap:3px}
+.diff i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.diff i.on{background:var(--brand)}
+.tag{font-size:11px;font-weight:650;color:var(--body);background:var(--surface-2);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.mini{border:1px solid var(--line);background:var(--bg);border-radius:8px;font-size:12px;font-weight:600;padding:5px 10px;color:var(--body)}
+.mini.warn{color:var(--danger);border-color:color-mix(in srgb, var(--danger) 35%, var(--line))}
+
+/* ---- sheet ---- */
+.backdrop{position:fixed;inset:0;background:rgba(0,19,52,.45);z-index:40;display:grid;place-items:end center;padding:0}
+@media (min-width:620px){.backdrop{place-items:center}}
+.sheet{background:var(--bg);width:100%;max-width:470px;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  box-shadow:var(--shadow);max-height:88vh;overflow-y:auto}
+@media (min-width:620px){.sheet{border-radius:18px;padding-bottom:18px}}
+.sheet h3{font-size:18px;font-weight:750;margin-bottom:6px}
+.sheet .desc{font-size:14.5px;color:var(--body);margin:0 0 14px}
+.sheet .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:20px 14px;text-align:center;color:var(--muted);font-size:13px;background:var(--surface);margin-bottom:12px}
+.drop b{display:block;color:var(--ink);font-size:14px;font-weight:650;margin-bottom:3px}
+.note{font-size:11.5px;color:var(--muted);margin:10px 0 0;line-height:1.45}
+.btn{display:block;width:100%;border:0;border-radius:11px;background:var(--brand);color:#fff;font-weight:700;font-size:15px;padding:13px}
+.btn:disabled{background:var(--line);color:var(--muted);cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--body);font-weight:600;font-size:13.5px;padding:10px}
+.sheet .closed-by{background:var(--brand-soft);border-radius:11px;padding:12px 14px;font-size:13.5px;color:var(--brand-ink);margin-bottom:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:50;
+  background:var(--hero-bg);color:#fff;font-size:13.5px;font-weight:600;padding:11px 18px;border-radius:999px;box-shadow:var(--shadow);max-width:90vw;text-align:center}
+@media (min-width:720px){.toast{bottom:28px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brandmark"><span class="dot">E</span>Bingo</div>
+    <span class="badge-demo">Prototype · data is made up</span>
+    <nav class="nav-desktop" id="navD"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-board"></section>
+  <section id="view-feed" hidden></section>
+  <section id="view-rank" hidden></section>
+  <section id="view-hr" hidden></section>
+</main>
+
+<nav class="tabbar" id="navM"></nav>
+
+<script>
+/* ============ data ============ */
+const POOL=[
+{id:1,s:"Pet on camera",f:"Show your pet, or a favorite toy, on camera during an internal call.",d:2,p:"photo",t:[],c:"Calls"},
+{id:2,s:"Daily in a hat",f:"Join an internal call wearing a hat, a cap, or any other headgear.",d:1,p:"screen",t:[],c:"Calls"},
+{id:3,s:"Yourself as background",f:"Set a photo of yourself as your virtual background on a call.",d:1,p:"screen",t:[],c:"Calls"},
+{id:4,s:"Standing daily",f:"Stay on your feet for the entire daily. Someone else on the call confirms it.",d:1,p:"text",t:[],c:"Calls"},
+{id:5,s:"Call from outdoors",f:"Join an internal call from the street, a park, or a balcony.",d:2,p:"photo",t:[],c:"Calls"},
+{id:6,s:"Word of the day",f:"Slip \"synergy\", \"proactively\", or \"holistic\" into the daily without anyone raising an eyebrow.",d:1,p:"text",t:[],c:"Calls"},
+{id:7,s:"Emoji only",f:"Reply in the call chat using nothing but emoji, and still be understood.",d:1,p:"screen",t:[],c:"Calls"},
+{id:8,s:"Daily under 3 minutes",f:"Run your team's daily in under three minutes. Screenshot the timer or the call duration.",d:2,p:"screen",t:[],c:"Calls"},
+{id:9,s:"Everyone on camera",f:"Get every single participant of an internal call to switch their camera on.",d:3,p:"screen",t:[],c:"Calls"},
+{id:10,s:"Call from the kitchen",f:"Join an internal call from somewhere unexpected: the kitchen, your car, a stairwell.",d:2,p:"photo",t:[],c:"Calls"},
+{id:11,s:"Desk as it is",f:"Photograph your desk without tidying it first, mess and all.",d:1,p:"photo",t:[],c:"Workspace"},
+{id:12,s:"Object with a story",f:"Find something on your desk older than three years and tell everyone where it came from.",d:2,p:"photo",t:[],c:"Workspace"},
+{id:13,s:"Plant with a name",f:"Get a plant for your desk and give it a name. One you already own counts, as long as it has no name yet.",d:2,p:"photo",t:[],c:"Workspace"},
+{id:14,s:"Your mug",f:"Show the mug you drink from at work. The stranger it looks, the better.",d:1,p:"photo",t:[],c:"Workspace"},
+{id:15,s:"Stairs, not the lift",f:"Take the stairs up to your floor and get a photo on the way.",d:1,p:"photo",t:["office"],c:"Workspace"},
+{id:16,s:"Lunch without screens",f:"Eat lunch without looking at a single screen. Photograph the table with no laptop and no phone on it.",d:1,p:"photo",t:[],c:"Workspace"},
+{id:17,s:"An hour at their desk",f:"Work for an hour at the desk of a colleague from another department, with their blessing of course.",d:3,p:"photo",t:["office"],c:"Workspace"},
+{id:18,s:"Handwritten note",f:"Leave a colleague a handwritten note with a compliment on it.",d:1,p:"photo",t:[],c:"Workspace"},
+{id:19,s:"Mystery object",f:"Find a work item whose purpose nobody around you can explain.",d:2,p:"photo",t:[],c:"Workspace"},
+{id:20,s:"Before and after",f:"Tidy your workspace. Two photos: before and after.",d:2,p:"photo",t:[],c:"Workspace"},
+{id:21,s:"Coffee with a stranger",f:"Have coffee, in person or over video, with a colleague you have never worked with.",d:2,p:"photo",t:[],c:"Other departments"},
+{id:22,s:"Odd fact",f:"Learn a fact about a colleague from another department that almost nobody knows. Write it down.",d:2,p:"text",t:[],c:"Other departments"},
+{id:23,s:"Photo with a stranger",f:"Get a photo with someone from a department you have never crossed paths with.",d:2,p:"photo",t:[],c:"Other departments"},
+{id:24,s:"What they really do",f:"Ask a colleague from another department to explain their job in two minutes, then retell it in your own words.",d:2,p:"text",t:[],c:"Other departments"},
+{id:25,s:"Lunch at random",f:"Have lunch with someone you picked at random from the employee list.",d:3,p:"photo",t:[],c:"Other departments"},
+{id:26,s:"Thanks in public",f:"Thank a colleague for their help in a public channel rather than a direct message.",d:1,p:"screen",t:[],c:"Other departments"},
+{id:27,s:"Tour for a newcomer",f:"Find someone who joined less than three months ago and give them a tour or an intro call.",d:3,p:"photo",t:[],c:"Other departments"},
+{id:28,s:"Three new names",f:"Learn the names of three colleagues you did not know before. Write them down.",d:2,p:"text",t:[],c:"Other departments"},
+{id:29,s:"Advice from a veteran",f:"Ask a colleague who has been here more than five years for one piece of advice for newcomers.",d:2,p:"text",t:[],c:"Other departments"},
+{id:30,s:"Inside joke",f:"Send a colleague from another department a meme only the two of you will get.",d:1,p:"screen",t:[],c:"Other departments"},
+{id:31,s:"Code review in 15 sec",f:"Film a fifteen-second video of what a code review really looks like.",d:3,p:"photo",t:[],c:"Creative"},
+{id:32,s:"Architecture as a tale",f:"Talk your tech lead into explaining the project architecture as a fairy tale. Write down the first two lines.",d:3,p:"text",t:[],c:"Creative"},
+{id:33,s:"Meme about your week",f:"Make a meme about your working week.",d:2,p:"photo",t:[],c:"Creative"},
+{id:34,s:"Selfie with a bug",f:"Get a photo of yourself next to a screen showing the funniest error of the week.",d:2,p:"photo",t:[],c:"Creative"},
+{id:35,s:"Explain it to a child",f:"Describe your project in one sentence a six-year-old would understand.",d:2,p:"text",t:[],c:"Creative"},
+{id:36,s:"Working playlist",f:"Put together a \"what I work to\" playlist and share it in a public channel.",d:2,p:"screen",t:[],c:"Creative"},
+{id:37,s:"Portrait in 30 seconds",f:"Draw a colleague's portrait in thirty seconds and show them the result.",d:2,p:"photo",t:[],c:"Creative"},
+{id:38,s:"Motto on a sticky note",f:"Come up with a motto for your project team and write it on a whiteboard or a sticky note.",d:2,p:"photo",t:[],c:"Creative"},
+{id:39,s:"View from the window",f:"Photograph the view from the window where you work.",d:1,p:"photo",t:[],c:"Creative"},
+{id:40,s:"Strangest bug story",f:"Tell the story of the strangest bug of your career on an internal call.",d:2,p:"text",t:[],c:"Creative"},
+{id:41,s:"Inbox zero",f:"Clear your work inbox down to zero unread. Screenshot it as proof.",d:3,p:"screen",t:[],c:"Habits"},
+{id:42,s:"Five tabs",f:"Get down to no more than five open browser tabs. Screenshot.",d:2,p:"screen",t:[],c:"Habits"},
+{id:43,s:"Fifteen-minute walk",f:"Take a fifteen-minute walk in the middle of the working day.",d:1,p:"photo",t:[],c:"Habits"},
+{id:44,s:"Two liters of water",f:"Drink two liters of water over the working day and log it.",d:1,p:"photo",t:[],c:"Habits"},
+{id:45,s:"Call without a phone",f:"Get through an entire call without picking up your phone once.",d:2,p:"text",t:[],c:"Habits"},
+{id:46,s:"An hour without email",f:"Keep email and messengers closed for the first hour of the working day.",d:2,p:"text",t:[],c:"Habits"},
+{id:47,s:"The task you put off",f:"Close the task you have been putting off for more than two weeks.",d:3,p:"screen",t:[],c:"Habits"},
+{id:48,s:"Clean desktop",f:"Tidy up your computer desktop. Screenshot before and after.",d:2,p:"screen",t:[],c:"Habits"},
+{id:49,s:"Missing documentation",f:"Write or update a piece of documentation that has been missing for a while.",d:3,p:"screen",t:[],c:"Habits"},
+{id:50,s:"Oldest ticket",f:"Close the oldest ticket sitting in your backlog.",d:3,p:"screen",t:[],c:"Habits"},
+{id:51,s:"All three together",f:"Get your whole trio onto one call, or out for coffee together.",d:3,p:"photo",t:[],c:"Team"},
+{id:52,s:"Group photo",f:"Take a photo of the whole trio. A collage of three selfies counts.",d:2,p:"photo",t:[],c:"Team"},
+{id:53,s:"Name and motto",f:"Come up with a name and a motto for your trio.",d:1,p:"text",t:[],c:"Team"},
+{id:54,s:"Same pose",f:"Get a photo of all three of you striking exactly the same pose.",d:3,p:"photo",t:[],c:"Team"},
+{id:55,s:"Lunch as a trio",f:"Eat lunch all three at the same time, in person or over video.",d:3,p:"photo",t:[],c:"Team"},
+{id:56,s:"Something in common",f:"Work out what all three of you have in common besides work. Write down what you find.",d:2,p:"text",t:[],c:"Team"},
+{id:57,s:"One question for three",f:"Ask every member of the trio the same odd question and collect all three answers.",d:2,p:"text",t:[],c:"Team"},
+{id:58,s:"Object relay",f:"Pass one and the same object along the trio. Three photos in a row.",d:3,p:"photo",t:[],c:"Team"},
+{id:59,s:"Guess your teammate",f:"Describe one of the trio in three words so the others can guess who it is.",d:1,p:"text",t:[],c:"Team"},
+{id:60,s:"Same gesture",f:"Screenshot a call where all three of you are making the same gesture.",d:2,p:"screen",t:[],c:"Team"}
+];
+const TAGLBL={any:"anyone",office:"office",cross:"another department",team:"whole trio"};
+const PROOFLBL={photo:"photo",screen:"screenshot",text:"text"};
+const TEAM={name:"Three Whales",members:[{n:"Anton K.",d:"Presales"},{n:"Marina L.",d:"QA"},{n:"Dmitry S.",d:"Backend"}]};
+
+/* ============ board generator: every line gets at least one hard task ============ */
+const LINES=(()=>{const L=[];for(let r=0;r<5;r++)L.push([0,1,2,3,4].map(c=>r*5+c));
+  for(let c=0;c<5;c++)L.push([0,1,2,3,4].map(r=>r*5+c));
+  L.push([0,6,12,18,24]);L.push([4,8,12,16,20]);return L})();
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function buildBoard(seed){
+  const r=rng(seed);
+  const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const center=POOL.find(t=>t.id===51);
+  const easy=shuffle(POOL.filter(t=>t.d===1)).slice(0,8);
+  const mid=shuffle(POOL.filter(t=>t.d===2)).slice(0,11);
+  const hard=shuffle(POOL.filter(t=>t.d===3&&t.id!==51)).slice(0,5);
+  const rest=[...easy,...mid,...hard];
+  let best=null,bestScore=-1;
+  for(let a=0;a<4000;a++){
+    const sh=shuffle(rest);let k=0;
+    const grid=[];for(let i=0;i<25;i++)grid.push(i===12?center:sh[k++]);
+    let ok=true,score=0;
+    for(const L of LINES){
+      const hardN=L.filter(i=>grid[i].d===3).length;
+      const sum=L.reduce((s,i)=>s+grid[i].d,0);
+      if(hardN<1||sum<9)ok=false;
+      score+=Math.min(hardN,1)*12+sum;
+    }
+    if(ok)return grid;
+    if(score>bestScore){bestScore=score;best=grid}
+  }
+  return best;
+}
+const BOARD=buildBoard(20260413);
+const DONE_IDX=[5,6,7,8,9,0,12,18,21,3];
+const WHO=["Marina L.","Anton K.","Dmitry S."];
+const state={
+  done:new Map(DONE_IDX.map((i,k)=>[i,{by:WHO[k%3],day:"day "+(1+(k%5))}])),
+  todayUsed:1, dailyLimit:3, view:"board", rankTab:"teams", hrQuery:"", off:new Set([44]),
+  reacted:new Set()
+};
+function points(){let p=0;state.done.forEach((_,i)=>p+=BOARD[i].d);return p+lines().length*5}
+function lines(){return LINES.filter(L=>L.every(i=>state.done.has(i)))}
+function winCells(){const s=new Set();lines().forEach(L=>L.forEach(i=>s.add(i)));return s}
+
+/* ============ demo leaderboard ============ */
+const TEAMNAMES=["Four Coffees","Quiet Deploy","Red Marker","Three Whales","Night Build","Yellow Sticky","Last Sprint","Server Room","Friday Release","Coffee and Logs","Second Attempt","Warm and Fuzzy"];
+const PEOPLE=[["Marina L.","QA","Red Marker"],["Egor P.","Frontend","Four Coffees"],["Anton K.","Presales","Three Whales"],["Olga V.","HR","Quiet Deploy"],["Dmitry S.","Backend","Three Whales"],["Ilya Z.","DevOps","Night Build"],["Anna R.","Design","Yellow Sticky"],["Pavel N.","Backend","Quiet Deploy"],["Sveta M.","PM","Four Coffees"],["Kirill B.","QA","Last Sprint"]];
+const TEAMROWS=(()=>{const r=rng(77);const base=[48,44,41,0,37,35,33,31,29,28,26,24];
+  return TEAMNAMES.map((n,i)=>({n,pts:base[i],ln:Math.max(0,3-Math.floor(i/4)),cells:Math.round(base[i]/1.9)}))})();
+
+/* ============ rendering ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const diffDots=d=>`<span class="diff">${[1,2,3].map(i=>`<i class="${i<=d?"on":""}"></i>`).join("")}</span>`;
+const initials=n=>n.split(" ").map(w=>w[0]).join("").slice(0,2);
+
+const VIEWS=[
+ {id:"board",t:"Board",i:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>'},
+ {id:"feed",t:"Feed",i:'<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="m4 18 5-4 4 3 3-2 4 3"/>'},
+ {id:"rank",t:"Ranking",i:'<path d="M5 20V10M12 20V4M19 20v-7"/>'},
+ {id:"hr",t:"HR",i:'<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'}
+];
+function renderNav(){
+  $("#navD").innerHTML=VIEWS.map(v=>`<button data-v="${v.id}" aria-current="${state.view===v.id}">${v.t}</button>`).join("");
+  $("#navM").innerHTML=VIEWS.map(v=>`<button data-v="${v.id}" aria-current="${state.view===v.id}"><svg viewBox="0 0 24 24">${v.i}</svg>${v.t}</button>`).join("");
+}
+function go(v){state.view=v;["board","feed","rank","hr"].forEach(x=>$("#view-"+x).hidden=x!==v);renderNav();render();window.scrollTo({top:0});}
+
+function renderBoard(){
+  const win=winCells(),ln=lines().length,done=state.done.size;
+  const rank=4,left=8;
+  $("#view-board").innerHTML=`
+  <div class="hero">
+    <div class="hero-top">
+      <div><h1>${esc(TEAM.name)}</h1>
+        <div class="sub">${TEAM.members.map(m=>esc(m.n)+" · "+esc(m.d)).join("   ")}</div></div>
+      <div class="rank"><b>${rank}</b><span>of 47 teams</span></div>
+    </div>
+    <div class="hero-stats">
+      <div><b>${points()}</b><span>points</span></div>
+      <div><b>${ln}</b><span>${ln===1?"line":"lines"} done</span></div>
+      <div><b>${done}<small style="font-size:13px;opacity:.5">/25</small></b><span>cells closed</span></div>
+    </div>
+    <div class="hero-bar">
+      <div class="lbl"><span>Day 6 of 14</span><span>${left} days left</span></div>
+      <div class="track"><div class="fill" style="width:43%"></div></div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h2>Team board</h2>
+    <span class="hint">${state.todayUsed} of ${state.dailyLimit} closed today — the team limit</span>
+  </div>
+  <div class="board">
+    ${BOARD.map((t,i)=>{
+      const d=state.done.has(i),w=win.has(i);
+      return `<button class="cell ${d?"done":""} ${w?"win":""}" data-i="${i}">
+        ${i===12?'<span class="pin">SHARED</span>':""}
+        ${d?'<svg class="tick" viewBox="0 0 24 24"><path d="m4 13 5 5L20 7"/></svg>':""}
+        <span>${esc(t.s)}</span></button>`}).join("")}
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--done-bg)"></i>closed</span>
+    <span><i style="background:var(--win-bg)"></i>completed line</span>
+    <span><i style="background:var(--cell-bg);border:1px solid var(--cell-line)"></i>open</span>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <div style="font-weight:650;color:var(--ink);margin-bottom:5px">How a board is built</div>
+    <div style="font-size:13.5px">The generator lays out 25 tasks from the pool so that each of the 12 lines holds at least one hard task and totals at least nine difficulty points. There is no cheap line of five easy cells to be found. The center cell is the same for every team.</div>
+  </div>`;
+}
+
+const FEED=[
+ {who:"Marina L.",dep:"QA",team:"Red Marker",task:"Plant with a name",kind:"photo",v:"",cap:"Meet Steven. He is in charge of morale in the QA department.",r:[24,8],ago:"12 minutes ago"},
+ {who:"Egor P.",dep:"Frontend",team:"Four Coffees",task:"Architecture as a tale",kind:"text",v:"Once upon a time there was a monolith. It had three services, and the youngest was redundant...",cap:"",r:[41,15],ago:"an hour ago"},
+ {who:"Olga V.",dep:"HR",team:"Quiet Deploy",task:"Daily in a hat",kind:"photo",v:"v2",cap:"Half the call went on discussing the hat. The daily still took four minutes.",r:[33,6],ago:"2 hours ago"},
+ {who:"Ilya Z.",dep:"DevOps",team:"Night Build",task:"Inbox zero",kind:"screen",v:"v3",cap:"Four years. I have waited four years for this.",r:[57,22],ago:"3 hours ago"},
+ {who:"Anna R.",dep:"Design",team:"Yellow Sticky",task:"Odd fact",kind:"text",v:"Our sysadmin rowed competitively for nine years and still takes a kayak out on weekends.",cap:"",r:[29,4],ago:"yesterday"},
+ {who:"Dmitry S.",dep:"Backend",team:"Three Whales",task:"Call from outdoors",kind:"photo",v:"",cap:"The wind in the microphone was louder than me, but the cell counts.",r:[18,3],ago:"yesterday"}
+];
+function renderFeed(){
+  $("#view-feed").innerHTML=`
+  <div class="section-head"><h2>Feed</h2><span class="hint">312 proofs this round · moderated after the fact</span></div>
+  <div class="feed">${FEED.map((p,i)=>`
+    <article class="post">
+      <div class="post-head">
+        <div class="ava">${esc(initials(p.who))}</div>
+        <div><div class="who">${esc(p.who)}</div><div class="meta">${esc(p.dep)} · ${esc(p.team)} · ${esc(p.ago)}</div></div>
+      </div>
+      ${p.kind==="text"
+        ? `<div class="proof-text">«${esc(p.v)}»</div>`
+        : `<div class="proof ${p.v}">
+             <svg viewBox="0 0 24 24">${p.kind==="screen"
+               ?'<rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 20h8M12 17v3"/>'
+               :'<path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.8l1.2-2h7l1.2 2h1.8A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/>'}</svg>
+             <span>${p.kind==="screen"?"SCREENSHOT":"PHOTO"}</span></div>`}
+      <div class="post-body">
+        <span class="task-chip">${esc(p.task)}</span>
+        ${p.cap?`<div style="font-size:13.5px">${esc(p.cap)}</div>`:""}
+        <div class="reacts">
+          <button class="react ${state.reacted.has(i)?"on":""}" data-react="${i}">👏 ${p.r[0]+(state.reacted.has(i)?1:0)}</button>
+          <button class="react">😂 ${p.r[1]}</button>
+        </div>
+      </div>
+    </article>`).join("")}</div>`;
+}
+
+function renderRank(){
+  const t=state.rankTab;
+  const rows=t==="teams"
+   ? TEAMROWS.map(r=>r.n===TEAM.name?{...r,pts:points(),cells:state.done.size,ln:lines().length}:r)
+       .sort((a,b)=>b.pts-a.pts)
+       .map((r,i)=>`<div class="row ${r.n===TEAM.name?"me":""} ${i===0?"top1":""}">
+          <div class="pos">${i+1}</div>
+          <div class="nm">${esc(r.n)}<small>${r.cells} cells · ${r.ln} ${r.ln===1?"line":"lines"}</small></div>
+          <div class="pts">${r.pts}<small>points</small></div></div>`).join("")
+   : PEOPLE.map((p,i)=>`<div class="row ${p[0]==="Anton K."?"me":""} ${i===0?"top1":""}">
+          <div class="pos">${i+1}</div>
+          <div class="nm">${esc(p[0])}<small>${esc(p[1])} · ${esc(p[2])}</small></div>
+          <div class="pts">${22-i*2}<small>points</small></div></div>`).join("");
+  $("#view-rank").innerHTML=`
+  <div class="section-head"><h2>Ranking</h2><span class="hint">updates the moment a cell is closed</span></div>
+  <div class="tabs">
+    <button data-rank="teams" aria-current="${t==="teams"}">Teams</button>
+    <button data-rank="people" aria-current="${t==="people"}">People</button>
+  </div>
+  <div class="rows">${rows}</div>
+  <div class="card" style="margin-top:16px">
+    <div style="font-weight:650;color:var(--ink);margin-bottom:5px">How points work</div>
+    <div style="font-size:13.5px">A cell is worth its difficulty: 1, 2 or 3. A completed line adds 5, the first line of the round another 10, and a fully closed board 25 on top. Personal points go to whoever closed the cell, so an active player still scores in a trio that went quiet.</div>
+  </div>`;
+}
+
+function renderHR(){
+  const q=state.hrQuery.toLowerCase();
+  const list=POOL.filter(t=>!q||t.s.toLowerCase().includes(q)||t.f.toLowerCase().includes(q)||t.c.toLowerCase().includes(q));
+  $("#view-hr").innerHTML=`
+  <div class="section-head"><h2>HR area</h2><span class="hint">round 1 · running</span></div>
+  <div class="tiles">
+    <div class="tile"><b>141</b><span>employees</span></div>
+    <div class="tile"><b>47</b><span>teams</span></div>
+    <div class="tile"><b>41</b><span>active teams</span></div>
+    <div class="tile"><b>312</b><span>proofs</span></div>
+  </div>
+
+  <div class="section-head"><h2>Round settings</h2></div>
+  <div class="card">
+    <div class="field"><div><label for="f-title">Round name</label><p>Players see this on the sign-up screen.</p></div>
+      <input id="f-title" value="Bingo, round 1"></div>
+    <div class="field"><div><label for="f-team">Team size</label><p>Anyone left over joins the smallest teams.</p></div>
+      <select id="f-team"><option>2</option><option selected>3</option><option>4</option></select></div>
+    <div class="field"><div><label>Photos off the board</label><p>Anyone may post a photo with no task behind it, two a day. It scores nothing, so the feed is alive before the first cell is closed.</p></div>
+      <button class="switch" id="sw-free" aria-pressed="true" aria-label="Photos off the board"></button></div>
+  </div>
+
+  <div class="section-head"><h2>Task pool</h2><span class="hint">${list.length} of ${POOL.length}</span></div>
+  <div style="margin-bottom:10px"><input type="search" id="hr-q" placeholder="Search tasks or categories…" value="${esc(state.hrQuery)}"></div>
+  <div class="tasktable">
+    <div class="thead"><span>Task</span><span>Diff.</span><span>Proof</span><span>On</span></div>
+    <div class="scrolly">
+      ${list.map(t=>`<div class="trow">
+        <span class="t">${esc(t.s)}<small>${esc(t.c)} · ${t.t.map(x=>TAGLBL[x]).join(", ")}</small></span>
+        <span>${diffDots(t.d)}</span>
+        <span class="tag">${PROOFLBL[t.p]}</span>
+        <span><button class="switch" style="width:34px;height:20px" data-off="${t.id}" aria-pressed="${!state.off.has(t.id)}" aria-label="Enabled"></button></span>
+      </div>`).join("")}
+    </div>
+  </div>
+
+  <div class="section-head"><h2>Latest proofs</h2><span class="hint">removable in one click</span></div>
+  <div class="rows">
+    ${FEED.slice(0,4).map(p=>`<div class="row" style="grid-template-columns:34px 1fr auto">
+      <div class="ava" style="width:28px;height:28px;font-size:11px">${esc(initials(p.who))}</div>
+      <div class="nm">${esc(p.task)}<small>${esc(p.who)} · ${esc(p.team)} · ${esc(p.ago)}</small></div>
+      <button class="mini warn">Remove</button></div>`).join("")}
+  </div>
+  <p class="note" style="margin-top:14px">All data in this prototype is made up; file upload and email are not wired in. Changes last until you reload the page.</p>`;
+}
+
+function render(){
+  if(state.view==="board")renderBoard();
+  if(state.view==="feed")renderFeed();
+  if(state.view==="rank")renderRank();
+  if(state.view==="hr")renderHR();
+}
+
+/* ============ task card ============ */
+function openCell(i){
+  const t=BOARD[i],d=state.done.get(i);
+  const blocked=!d&&state.todayUsed>=state.dailyLimit;
+  const b=document.createElement("div");b.className="backdrop";b.id="bd";
+  b.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(t.s)}">
+    <h3>${esc(t.s)}</h3>
+    <p class="desc">${esc(t.f)}</p>
+    <div class="meta-row">
+      <span class="tag">${["","easy","medium","hard"][t.d]} · ${t.d} ${t.d===1?"point":"points"}</span>
+      <span class="tag">proof: ${PROOFLBL[t.p]}</span>
+      <span class="tag">${t.t.map(x=>TAGLBL[x]).join(", ")}</span>
+      ${i===12?'<span class="tag">shared cell</span>':""}
+    </div>
+    ${d?`<div class="closed-by">Closed by ${esc(d.by)}, ${esc(d.day)}. The proof is in the feed.</div>
+        <button class="btn ghost" data-close>Close</button>`
+      :`<div class="drop"><b>Drop a photo here, or click</b>A phone snap, a screenshot or a short note</div>
+        <button class="btn" data-take="${i}" ${blocked?"disabled":""}>${blocked?"Daily limit reached":"Close the cell"}</button>
+        <p class="note">The cell closes right away and the proof appears in the shared feed. HR can remove it later. Keep code, client data and anyone who has not agreed out of the shot.</p>
+        <button class="btn ghost" data-close>Cancel</button>`}
+  </div>`;
+  document.body.appendChild(b);
+}
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(e=>e.remove());
+  const el=document.createElement("div");el.className="toast";el.textContent=msg;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2800);
+}
+
+document.addEventListener("click",e=>{
+  const nav=e.target.closest("[data-v]");            if(nav){go(nav.dataset.v);return}
+  const rk=e.target.closest("[data-rank]");          if(rk){state.rankTab=rk.dataset.rank;render();return}
+  const cell=e.target.closest(".cell");              if(cell){openCell(+cell.dataset.i);return}
+  const cl=e.target.closest("[data-close]");         if(cl){document.getElementById("bd")?.remove();return}
+  const rc=e.target.closest("[data-react]");         if(rc){const i=+rc.dataset.react;
+    state.reacted.has(i)?state.reacted.delete(i):state.reacted.add(i);render();return}
+  const off=e.target.closest("[data-off]");          if(off){const id=+off.dataset.off;
+    state.off.has(id)?state.off.delete(id):state.off.add(id);
+    off.setAttribute("aria-pressed",String(!state.off.has(id)));return}
+  const sw=e.target.closest(".switch:not([data-off])"); if(sw){
+    sw.setAttribute("aria-pressed",sw.getAttribute("aria-pressed")==="true"?"false":"true");return}
+  const take=e.target.closest("[data-take]");        if(take){
+    const i=+take.dataset.take,before=lines().length;
+    state.done.set(i,{by:"Anton K.",day:"today"});state.todayUsed++;
+    document.getElementById("bd")?.remove();render();
+    const after=lines().length;
+    toast(after>before?`Line complete! +${BOARD[i].d+5} points`:`Cell closed. +${BOARD[i].d} ${BOARD[i].d===1?"point":"points"}`);
+    return}
+  if(e.target.id==="bd")document.getElementById("bd")?.remove();
+});
+document.addEventListener("input",e=>{
+  if(e.target.id==="hr-q"){state.hrQuery=e.target.value;renderHR();
+    const el=document.getElementById("hr-q");el.focus();el.setSelectionRange(el.value.length,el.value.length)}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("bd")?.remove()});
+
+renderNav();render();
+</script>

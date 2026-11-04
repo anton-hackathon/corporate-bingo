@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- A bingo card with one line closed. The cat mascot is the face of the app
+       everywhere else, but at 16px it turns to mush; three cells on a diagonal
+       still read as the game. Colours are the app's own: brand blue, sun. -->
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#2258e7" stroke="#15161a" stroke-width="5"/>
+  <g fill="#ffffff">
+    <rect x="11.5" y="26.5" width="11" height="11" rx="2.5"/>
+    <rect x="11.5" y="41.5" width="11" height="11" rx="2.5"/>
+    <rect x="26.5" y="11.5" width="11" height="11" rx="2.5"/>
+    <rect x="26.5" y="41.5" width="11" height="11" rx="2.5"/>
+    <rect x="41.5" y="11.5" width="11" height="11" rx="2.5"/>
+    <rect x="41.5" y="26.5" width="11" height="11" rx="2.5"/>
+  </g>
+  <g fill="#ffc93c" stroke="#15161a" stroke-width="2.5">
+    <rect x="11.5" y="11.5" width="11" height="11" rx="2.5"/>
+    <rect x="26.5" y="26.5" width="11" height="11" rx="2.5"/>
+    <rect x="41.5" y="41.5" width="11" height="11" rx="2.5"/>
+  </g>
+</svg>

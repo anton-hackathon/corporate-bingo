@@ -1,0 +1,353 @@
+<title>Баланс бинго</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  /* Layout: a single reading column; one chart carries the whole argument. */
+  :root {
+    --bg: #ffffff;
+    --surface: #f5f7fc;
+    --line: #dfe3ec;
+    --ink: #121212;
+    --body: #3d4c65;
+    --muted: #6b7384;
+    --brand: #2258e7;
+    --brand-ink: #183c9e;
+    --brand-soft: #e9eefd;
+    --warn: #c2410c;
+    --warn-soft: #fff4ec;
+    --good: #0f7a4d;
+    --shadow: 4px 4px 0 #121212;
+    --edge: #121212;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1020;
+      --surface: #141d33;
+      --line: #27324b;
+      --ink: #f2f5fb;
+      --body: #b4c0d6;
+      --muted: #8b97ae;
+      --brand: #6b8ef0;
+      --brand-ink: #9db4f6;
+      --brand-soft: #1b2744;
+      --warn: #f3a26a;
+      --warn-soft: #2a1d12;
+      --good: #4fd19a;
+      --shadow: 4px 4px 0 #000000;
+      --edge: #000000;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --surface: #141d33; --line: #27324b;
+    --ink: #f2f5fb; --body: #b4c0d6; --muted: #8b97ae;
+    --brand: #6b8ef0; --brand-ink: #9db4f6; --brand-soft: #1b2744;
+    --warn: #f3a26a; --warn-soft: #2a1d12; --good: #4fd19a;
+    --shadow: 4px 4px 0 #000000; --edge: #000000;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--body);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 40px 64px;
+  }
+  h1, h2, h3 { color: var(--ink); margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+  h1 { font-size: clamp(28px, 6vw, 40px); font-weight: 800; line-height: 1.1; }
+  h2 { font-size: clamp(19px, 3.6vw, 23px); font-weight: 750; margin: 40px 0 10px; }
+  h3 { font-size: 16px; font-weight: 700; margin: 22px 0 4px; }
+  p { margin: 0 0 14px; }
+  strong { color: var(--ink); font-weight: 650; }
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 7px; }
+
+  .lede { font-size: clamp(17px, 2.6vw, 19px); color: var(--body); margin-top: 12px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--brand); margin-bottom: 10px;
+  }
+
+  .headline {
+    border: 3px solid var(--edge); border-radius: 14px;
+    background: var(--brand); color: #fff;
+    padding: 20px 22px; margin: 26px 0;
+    box-shadow: var(--shadow);
+  }
+  .headline b { display: block; font-size: clamp(26px, 5.5vw, 34px); font-weight: 800; line-height: 1.15; color: #fff; }
+  .headline span { display: block; margin-top: 6px; font-size: 14.5px; opacity: .9; }
+
+  figure { margin: 22px 0 10px; }
+  .chartbox {
+    border: 3px solid var(--edge); border-radius: 14px; background: var(--surface);
+    padding: 14px 12px 10px; box-shadow: var(--shadow); overflow-x: auto;
+  }
+  .chartbox svg { width: 100%; min-width: 440px; height: auto; display: block; }
+  figcaption { font-size: 13.5px; color: var(--muted); margin-top: 10px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 2px 0; font-size: 13.5px; font-weight: 600; }
+  .legend i { width: 22px; height: 3px; border-radius: 2px; display: inline-block; vertical-align: 3px; margin-right: 7px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 15px; }
+  caption { text-align: left; font-size: 13.5px; color: var(--muted); padding-bottom: 7px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; }
+  td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 650; color: var(--ink); }
+  tr.hi td { background: var(--brand-soft); }
+  .scroller { overflow-x: auto; }
+
+  .note {
+    border-left: 4px solid var(--brand); background: var(--brand-soft);
+    padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 18px 0;
+  }
+  .warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .note p:last-child { margin-bottom: 0; }
+
+  .delta { color: var(--good); font-weight: 700; }
+  footer { margin-top: 46px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+
+  <div class="eyebrow">Корпоративное бинго · настройка правил</div>
+  <h1>Почему победитель отрывается и что с этим делать</h1>
+  <p class="lede">
+    Прогнали две тысячи раундов по тридцать команд из четырёх человек. Ничьей наверху, как было
+    в Commit to Fit, не будет — она случается в 5% раундов. Лидер меняется в среднем пять раз
+    и определяется только к восьмому дню из десяти. Но разрыв между первым местом и серединой
+    таблицы получается тройной, и причина не в людях, а в самих правилах.
+  </p>
+
+  <div class="headline">
+    <b>80% работы — 43% очков</b>
+    <span>Команда, закрывшая двадцать клеток из двадцати пяти, имеет меньше половины того,
+      что получит команда, закрывшая все.</span>
+  </div>
+
+  <h2>В чём дело</h2>
+  <p>
+    Очки растут быстрее, чем усилия. Победитель закрывает 25 клеток, средняя команда — 17.
+    Работы в полтора раза больше, а очков втрое.
+  </p>
+  <p>
+    Так выходит из‑за линий. Их двенадцать, и они пересекаются: каждая клетка входит сразу
+    в две-три линии. Пока закрыто десять клеток, линий нет вообще и бонусов тоже. А двадцатая
+    клетка может достроить сразу три линии и принести пятнадцать очков вместо двух. Весь выигрыш
+    собирается в последних пяти клетках — и достаётся только тем, кто до них дошёл.
+  </p>
+
+  <figure>
+    <div class="chartbox">
+      <svg viewBox="0 0 640 300" role="img" aria-label="График: доля набранных очков в зависимости от числа закрытых клеток. Сейчас кривая загибается вверх в конце, по новым правилам идёт почти прямо.">
+        <!-- сетка -->
+        <g stroke="var(--line)" stroke-width="1">
+          <line x1="46" y1="260" x2="626" y2="260"/>
+          <line x1="46" y1="198.5" x2="626" y2="198.5"/>
+          <line x1="46" y1="137" x2="626" y2="137"/>
+          <line x1="46" y1="75.5" x2="626" y2="75.5"/>
+          <line x1="46" y1="14" x2="626" y2="14"/>
+        </g>
+        <g fill="var(--muted)" font-size="11" font-family="Inter, sans-serif" text-anchor="end">
+          <text x="38" y="264">0</text><text x="38" y="202">25</text><text x="38" y="141">50</text>
+          <text x="38" y="79">75</text><text x="38" y="18">100%</text>
+        </g>
+        <g fill="var(--muted)" font-size="11" font-family="Inter, sans-serif" text-anchor="middle">
+          <text x="46" y="282">0</text><text x="162" y="282">5</text><text x="278" y="282">10</text>
+          <text x="394" y="282">15</text><text x="510" y="282">20</text><text x="626" y="282">25</text>
+          <text x="336" y="297" font-size="11.5" font-weight="600">закрыто клеток</text>
+        </g>
+
+        <!-- отметка «80% работы» -->
+        <line x1="510" y1="14" x2="510" y2="260" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 4"/>
+
+        <!-- как сейчас -->
+        <path d="M46.0,260.0 L69.2,256.3 L92.4,252.6 L115.6,248.9 L138.8,245.2 L162.0,241.6 L185.2,237.9 L208.4,234.4 L231.6,230.7 L254.8,227.0 L278.0,223.3 L301.2,219.7 L324.4,214.0 L347.6,210.6 L370.8,204.9 L394.0,199.5 L417.2,193.8 L440.4,186.4 L463.6,177.3 L486.8,168.2 L510.0,155.4 L533.2,142.4 L556.4,125.9 L579.6,107.7 L602.8,85.6 L626.0,14.0"
+              fill="none" stroke="var(--warn)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- предлагаемые -->
+        <path d="M46.0,260.0 L69.2,252.9 L92.4,246.0 L115.6,236.6 L138.8,229.5 L162.0,222.6 L185.2,215.5 L208.4,208.3 L231.6,199.0 L254.8,192.1 L278.0,185.0 L301.2,175.6 L324.4,168.7 L347.6,159.1 L370.8,149.8 L394.0,140.4 L417.2,131.1 L440.4,121.7 L463.6,109.9 L486.8,98.4 L510.0,89.0 L533.2,77.2 L556.4,67.9 L579.6,58.5 L602.8,49.2 L626.0,14.0"
+              fill="none" stroke="var(--brand)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+
+        <circle cx="510" cy="155.4" r="5" fill="var(--warn)" stroke="var(--bg)" stroke-width="2"/>
+        <circle cx="510" cy="89" r="5" fill="var(--brand)" stroke="var(--bg)" stroke-width="2"/>
+        <text x="500" y="150" fill="var(--warn)" font-size="12" font-weight="700" font-family="Inter, sans-serif" text-anchor="end">43%</text>
+        <text x="500" y="84" fill="var(--brand)" font-size="12" font-weight="700" font-family="Inter, sans-serif" text-anchor="end">70%</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background: var(--warn)"></i>как сейчас</span>
+      <span><i style="background: var(--brand)"></i>предлагаемые правила</span>
+    </div>
+    <figcaption>
+      Доля набранных очков от максимума. Пунктир — отметка в двадцать закрытых клеток, то есть
+      80% работы. Сейчас кривая почти лежит и взлетает только в самом конце: бонусы достаются
+      тем, кто дошёл до финиша. По новым правилам она идёт почти прямо — каждое выполненное
+      задание честно прибавляет очков.
+    </figcaption>
+  </figure>
+
+  <h2>Откуда берутся очки сегодня</h2>
+  <div class="scroller">
+    <table>
+      <caption>Структура очков в конце раунда, усреднённая по двум тысячам прогонов</caption>
+      <thead><tr><th>Источник</th><th class="n">Победитель</th><th class="n">Средняя команда</th></tr></thead>
+      <tbody>
+        <tr><td>За выполненные задания</td><td class="n">37%</td><td class="n">74%</td></tr>
+        <tr class="hi"><td>За собранные линии</td><td class="n">42%</td><td class="n">14%</td></tr>
+        <tr><td>За полностью закрытое поле</td><td class="n">12%</td><td class="n">0%</td></tr>
+        <tr><td>За реакции в ленте</td><td class="n">6%</td><td class="n">12%</td></tr>
+        <tr><td>За первую линию в раунде</td><td class="n">3%</td><td class="n">0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Это две разные игры. Средняя команда играет в «выполни побольше заданий» и три четверти
+    очков получает именно за них. Победитель больше половины очков берёт с бонусов, которых
+    средняя команда не видит вообще.
+  </p>
+
+  <h2>Что предлагаем поменять</h2>
+  <div class="scroller">
+    <table>
+      <thead><tr><th>Что</th><th class="n">Сейчас</th><th class="n">Станет</th><th>Зачем</th></tr></thead>
+      <tbody>
+        <tr class="hi">
+          <td>Стоимость задания<br><span style="color:var(--muted);font-size:13px">лёгкое / среднее / сложное</span></td>
+          <td class="n">1 / 2 / 3</td><td class="n">1 / 3 / 6</td>
+          <td>Три сложных задания дают 18 очков против девяти лёгких за 9. Побеждает не тот, кто чаще нажимал, а тот, кто взялся за трудное.</td>
+        </tr>
+        <tr>
+          <td>Линия</td><td class="n">5</td><td class="n">4, с затуханием</td>
+          <td>Каждая следующая линия приносит на треть меньше предыдущей. Снежный ком в конце пропадает.</td>
+        </tr>
+        <tr>
+          <td>Полное поле</td><td class="n">25</td><td class="n">12</td>
+          <td>Остаётся заметной наградой, но перестаёт решать исход в одиночку.</td>
+        </tr>
+        <tr>
+          <td>Пруф набрал реакции</td><td class="n">2</td><td class="n">3</td>
+          <td>Смешная фотография начинает стоить примерно как среднее задание. Это ровно то, ради чего всё затевалось.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Что это даёт</h2>
+  <div class="scroller">
+    <table>
+      <thead><tr><th></th><th class="n">Сейчас</th><th class="n">Станет</th></tr></thead>
+      <tbody>
+        <tr><td>Во сколько раз победитель опережает середину таблицы</td><td class="n">3,2</td><td class="n"><span class="delta">2,0</span></td></tr>
+        <tr><td>Раундов, где лидер отрывается больше чем на четверть</td><td class="n">36%</td><td class="n"><span class="delta">6%</span></td></tr>
+        <tr><td>Очков у средней команды</td><td class="n">42</td><td class="n"><span class="delta">59</span></td></tr>
+        <tr><td>Команд, которые на седьмой день ещё в борьбе</td><td class="n">2,5</td><td class="n"><span class="delta">3,2</span></td></tr>
+        <tr><td>Смен лидера за раунд</td><td class="n">5,4</td><td class="n">5,2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Гонка остаётся такой же живой — лидер по‑прежнему меняется пять раз за раунд. Меняется
+    другое: средняя команда набирает заметно больше и до конца видит смысл играть.
+  </p>
+
+  <div class="note">
+    <p>
+      <strong>Отдельно проверили лимит клеток в день</strong> — он напрашивался сам собой, но почти
+      не помогает: отрыв падает с 36% всего до 31%, а средний результат становится хуже. Этот
+      рычаг не тот.
+    </p>
+  </div>
+
+  <h2>Если несколько команд закроют всё поле</h2>
+  <p>
+    Это не гипотетический случай, а гарантированный. <strong>Все поля устроены одинаково:</strong>
+    в каждом ровно восемь лёгких заданий, десять средних и семь сложных — проверили на четырёхстах
+    сгенерированных полях, разброса нет вообще. Так и задумано, иначе кому‑то досталось бы поле
+    полегче. Но из этого следует неприятное: полное поле стоит <strong>ровно одинаково</strong>
+    у любой команды. Две команды, закрывшие всё, приходят к финишу с одним и тем же числом.
+  </p>
+  <p>
+    И закрывают его не единицы. Если задания окажутся нетрудными, а народ втянется, поле целиком
+    закрывают <strong>одиннадцать команд из тридцати</strong>. Треть компании упирается в потолок,
+    и различать их остаётся нечему — кроме реакций в ленте.
+  </p>
+
+  <h3>Что с этим делать</h3>
+  <p>
+    Сделать бонус за реакции дробным. Сейчас предлагалось «+3 очка, если пруф собрал десять
+    реакций» — это ступенька: девять реакций дают ноль, десять дают три. Вместо этого:
+    <strong>1 очко за каждые четыре реакции, но не больше пяти очков за одну фотографию.</strong>
+    Потолок нужен, чтобы один разошедшийся по компании снимок не решал исход раунда в одиночку.
+  </p>
+  <div class="scroller">
+    <table>
+      <caption>Сценарий «задания лёгкие, народ в азарте», одиннадцать команд закрывают поле</caption>
+      <thead><tr><th>Бонус за реакции</th><th class="n">Ничья за 1‑е место</th><th class="n">Команд с неуникальным баллом</th></tr></thead>
+      <tbody>
+        <tr><td>Порог: +3 за десять реакций</td><td class="n">15%</td><td class="n">14 из 30</td></tr>
+        <tr class="hi"><td>Дробно: 1 за каждые четыре</td><td class="n"><span class="delta">7%</span></td><td class="n"><span class="delta">8,5 из 30</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Ничьи сокращаются вдвое, и наверху оказывается та команда, чьи фотографии действительно
+    смотрели. Для игры, которую затевали ради ленты, это правильный способ решать спор.
+    На общий баланс это не влияет: разрыв между победителем и серединой остаётся тем же.
+  </p>
+
+  <div class="note">
+    <p>
+      <strong>Второй рычаг — содержательный, а не арифметический.</strong> Потолок становится
+      тесным только тогда, когда «сложные» задания на самом деле не сложные. Если треть компании
+      закрывает поле целиком, это означает, что семь сложных клеток оказались не сложнее средних.
+      Подбор заданий здесь решает больше, чем любая настройка очков.
+    </p>
+  </div>
+
+  <h2>О чём стоит договориться заранее</h2>
+
+  <h3>Если играть будут вяло</h3>
+  <p>
+    При низкой вовлечённости отрыв остаётся большим при любых правилах: когда реально играют
+    полторы команды, победителем становится та, где случайно оказался один энтузиаст. Это лечится
+    не очками, а напоминаниями — ежедневным письмом и фото дня.
+  </p>
+
+  <h3>Если играть будут азартно</h3>
+  <div class="note warn">
+    <p>
+      При высокой вовлечённости до одиннадцати команд из тридцати закрывают поле целиком.
+      С дробным бонусом за реакции равенство очков на первом месте случается в 7% раундов
+      вместо 15%, но совсем оно не исчезает.
+    </p>
+    <p>
+      Сейчас при равенстве очков выше стоит команда, которая раньше собрала первую линию.
+      Честнее — <strong>кто раньше пришёл к своему результату</strong>: вы оба набрали столько‑то,
+      но вы во вторник, а они в четверг. Это нужно поправить в коде.
+    </p>
+    <p>
+      И главное: <strong>объявить правило разрешения ничьей до начала раунда</strong>, а не когда
+      дело дойдёт до призов. Новое условие в конце воспринимается как нарушение договорённости —
+      именно это и произошло в прошлый раз.
+    </p>
+  </div>
+
+  <footer>
+    Расчёт сделан на настоящем коде игры: поля собирает тот же генератор, очки считает та же
+    формула. Предположением остаётся только поведение людей — как часто заходят, насколько охотно
+    берутся за сложное. Выводы проверены на пяти разных сценариях поведения, от вялого до
+    азартного, и в каждом новый баланс оказывается лучше нынешнего.
+  </footer>
+
+</div>

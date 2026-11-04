@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Secrets: every .env, everywhere. The .example files are the ones that ship.
+.env
+.env.*
+!.env.example
+deploy/.env
+
+# Uploaded proofs — photographs of employees. These never belong in the repo.
+web/.uploads/
+.uploads/
+
+# Build output and dependencies
+node_modules/
+.next/
+.next-check/
+*.tsbuildinfo

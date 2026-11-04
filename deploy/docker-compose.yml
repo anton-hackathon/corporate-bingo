@@ -1,0 +1,87 @@
+# Production stack for a single host: app, database and a reverse proxy that
+# gets a real HTTPS certificate on its own.
+#
+#   cp .env.example .env   # fill it in first — see deploy/README.md
+#   docker compose up -d --build
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bingo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-bingo}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bingo} -d ${POSTGRES_DB:-bingo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: applies pending migrations, then exits. Uses the build stage,
+  # which still has the Prisma CLI and its dependencies.
+  migrate:
+    build:
+      context: ..
+      dockerfile: web/Dockerfile
+      target: build
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bingo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-bingo}?schema=public
+    command: npx prisma migrate deploy
+
+  app:
+    build:
+      context: ..
+      dockerfile: web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bingo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-bingo}?schema=public
+      APP_URL: ${APP_URL:?set APP_URL in .env}
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env}
+      ALLOWED_EMAIL_DOMAINS: ${ALLOWED_EMAIL_DOMAINS:-effective-soft.com}
+      HR_EMAILS: ${HR_EMAILS}
+      SESSION_DAYS: ${SESSION_DAYS:-90}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      STORAGE_DRIVER: local
+      STORAGE_LOCAL_DIR: /app/.uploads
+      TASKS_FILE: /app/tasks.json
+      ROUND_TIMEZONE: ${ROUND_TIMEZONE:-Europe/Minsk}
+      # Leave this unset in production. It opens the HR area to everyone.
+      DEBUG_OPEN_HR: ${DEBUG_OPEN_HR:-false}
+    volumes:
+      - uploads:/app/.uploads
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+
+volumes:
+  pgdata:
+  uploads:
+  caddydata:
+  caddyconfig:

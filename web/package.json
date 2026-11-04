@@ -1,0 +1,54 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint",
+    "db:up": "docker run -d --name bingo-db -e POSTGRES_USER=bingo -e POSTGRES_PASSWORD=bingo -e POSTGRES_DB=bingo -p 5433:5432 -v bingo-pgdata:/var/lib/postgresql/data postgres:16-alpine",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "demo": "tsx scripts/demo.ts",
+    "sim": "tsx scripts/simulate.mts",
+    "sim:variants": "tsx scripts/simulate-variants.mts",
+    "sim:sensitivity": "tsx scripts/simulate-sensitivity.mts",
+    "sim:mechanics": "tsx scripts/simulate-mechanics.mts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1159.0",
+    "@aws-sdk/s3-request-presigner": "^3.1159.0",
+    "@prisma/client": "^6.19.3",
+    "next": "15.5.28",
+    "nodemailer": "^10.3.0",
+    "prisma": "^6.19.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.28",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true,
+    "prisma@6.19.3": true,
+    "unrs-resolver@1.12.2": true
+  },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
+  }
+}
