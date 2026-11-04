@@ -11,6 +11,9 @@ const prisma = new PrismaClient();
 const DEPTS = ["Backend", "Frontend", "QA", "DevOps", "Design", "PM", "Presales", "Analytics", "Mobile", "HR"];
 // An international pool: the company has people in several countries, and
 // surnames that do not inflect keep every random pairing valid.
+/** The demo player. Set DEMO_OWNER to your own address before running this. */
+const OWNER = (process.env.DEMO_OWNER ?? "demo@effective-soft.com").trim().toLowerCase();
+
 const FIRST = ["Anton", "Marina", "Dmitry", "Olga", "Anna", "Pavel", "Kirill", "Julia",
   "Maxim", "Irina", "Sergey", "Catherine", "Natalia", "Polina", "Roman", "Victoria",
   "Daria", "Nikita", "Denis", "Alina", "Mayela", "Carlos", "Lucia", "Diego", "Sofia",
@@ -218,13 +221,14 @@ async function main() {
     );
   }
 
-  // The project owner's own account, so there is always something to sign in to.
+  // One account you are certain to be able to sign in as. Override it with
+  // DEMO_OWNER so a checkout does not come with somebody else's address in it.
   const me = await prisma.user.upsert({
-    where: { email: "anton.karzhavin@effective-soft.com" },
+    where: { email: OWNER },
     update: { active: true },
     create: {
-      email: "anton.karzhavin@effective-soft.com",
-      name: "Anton Karzhavin",
+      email: OWNER,
+      name: "Demo Player",
       department: "Presales",
       office: "office",
     },
@@ -241,7 +245,7 @@ async function main() {
   const extra = (process.env.DEMO_ACCOUNTS ?? "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
-    .filter((e) => e && e !== "anton.karzhavin@effective-soft.com");
+    .filter((e) => e && e !== OWNER);
   for (const [i, email] of extra.entries()) {
     const name = email
       .split("@")[0]
@@ -410,7 +414,7 @@ async function main() {
   for (const [i, t] of top.entries()) {
     console.log(`  ${i + 1}. ${t.name} — ${t.points} points, ${t.cellsDone} cells, ${t.linesDone} ${t.linesDone === 1 ? "line" : "lines"}`);
   }
-  console.log(`\nSign in as hr@effective-soft.com (HR) or anton.karzhavin@effective-soft.com (player).`);
+  console.log(`\nSign in as hr@effective-soft.com (HR) or ${OWNER} (player).`);
 }
 
 main()

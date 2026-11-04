@@ -28,7 +28,7 @@ cp .env.example .env            # set AUTH_SECRET: openssl rand -hex 32
 npm run db:up                   # Postgres 16 on port 5433
 npx prisma migrate dev
 npm run db:seed                 # 56 tasks plus the HR accounts from HR_EMAILS
-npm run demo                    # optional: 142 employees, teams, proofs, reactions
+DEMO_OWNER=you@effective-soft.com npm run demo   # optional: 142 employees, teams, proofs, reactions
 npm run dev
 ```
 

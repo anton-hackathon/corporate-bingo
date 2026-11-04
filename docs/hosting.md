@@ -11,14 +11,14 @@ if only staff use it. An internal company tool on Hobby is a terms violation wai
 Render, Fly.io, Koyeb and Cloudflare do not state the commercial question as plainly, which means
 it has to be read in their terms rather than assumed.
 
-Second consideration, raised on the call with Anna: the app stores **photographs of employees**.
+Second consideration, raised on the kick-off call: the app stores **photographs of employees**.
 Putting those on a third-party free tier outside the company perimeter is a decision for someone
 other than the person deploying it.
 
 ## Options, best first
 
 ### 1. Inside the company — recommended
-EffectiveSoft already runs infrastructure, and Misha was named on the call for exactly this reason.
+EffectiveSoft already runs its own infrastructure, which is why this was the first option raised.
 One small VM with Docker runs the whole stack: the Next.js app, Postgres, and MinIO for photos.
 Corporate SMTP is already available for the magic links.
 

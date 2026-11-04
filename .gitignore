@@ -16,3 +16,6 @@ node_modules/
 .next/
 .next-check/
 *.tsbuildinfo
+
+# Internal meeting notes: stay out of the public repository.
+docs/call-notes-*.md

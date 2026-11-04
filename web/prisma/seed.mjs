@@ -58,7 +58,7 @@ async function main() {
     .filter(Boolean);
 
   for (const email of hrEmails) {
-    // "anna.aleksina@…" → "Anna Aleksina". The local part on its own ends up on
+    // "jane.smith@…" → "Jane Smith". The local part on its own ends up on
     // the team roster and in the feed, where a lowercase address reads as a bug.
     const name = email
       .split("@")[0]
