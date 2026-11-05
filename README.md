@@ -1,4 +1,4 @@
-# EffectiveSoft Corporate Bingo
+# Corporate Bingo
 
 An internal game: every team gets its own board of light-hearted tasks and tries to complete a line.
 Teams of three are drawn at random, so departments get mixed up.
